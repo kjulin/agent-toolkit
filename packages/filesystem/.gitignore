@@ -1,0 +1,12 @@
+node_modules/
+dist/
+tests/workspace/*
+!tests/workspace/.gitkeep
+evals/workspace/*
+!evals/workspace/.gitkeep
+*.log
+.DS_Store
+.env
+
+# Temporary workspace copies created during evals
+evals/scenarios/*/workspace-*

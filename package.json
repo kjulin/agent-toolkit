@@ -1,0 +1,24 @@
+{
+  "name": "agent-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo for agent toolkits - filesystem, web, and more",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "clean": "npm run clean --workspaces && rm -rf node_modules"
+  },
+  "keywords": [
+    "agent",
+    "toolkit",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}
