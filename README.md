@@ -20,6 +20,22 @@ Features:
 
 [See full documentation →](./packages/filesystem/README.md)
 
+### [@agent-toolkit/messages](./packages/messages)
+
+Message formatting utilities for various agent frameworks.
+
+```bash
+npm install @agent-toolkit/messages
+```
+
+Features:
+- LangChain message formatting for terminal display
+- Type-safe message handling
+- Tool call and response formatting
+- Framework agnostic core
+
+[See full documentation →](./packages/messages/README.md)
+
 ## Development
 
 This is a monorepo managed with npm workspaces. Each package can be developed independently.

@@ -229,29 +229,17 @@ const tools = createLangchainFileSystemTools({
 
 ### Message Formatting
 
-Format LangChain messages for terminal output:
+For formatting LangChain messages and tool calls in your terminal output, see the [@agent-toolkit/messages](../messages) package:
+
+```bash
+npm install @agent-toolkit/messages
+```
 
 ```typescript
-import { LangchainMessage } from '@agent-toolkit/filesystem/langchain';
-import { AIMessage } from '@langchain/core/messages';
-
-const message = new AIMessage({ content: '...', tool_calls: [...] });
-const formatter = LangchainMessage(message);
-
-// Type checks
-formatter.isAI(); // true
-formatter.isToolCall(); // true if has tool calls
-
-// Get data
-formatter.getToolCalls(); // Array of tool calls
-formatter.getContent(); // Message content
-
-// Terminal-friendly output
-console.log(formatter.terminal());
-// 🔧 search_content
-//    • pattern: import.*fs
-//    • type: ts
+import { LangchainMessage } from '@agent-toolkit/messages';
 ```
+
+See the [messages package documentation](../messages/README.md) for full details.
 
 ## Running Evals
 
