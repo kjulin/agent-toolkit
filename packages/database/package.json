@@ -32,6 +32,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@agent-toolkit/messages": "*",
     "pg": "^8.13.1"
   },
   "peerDependencies": {

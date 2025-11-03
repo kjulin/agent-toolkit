@@ -5,6 +5,7 @@
 
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk';
+import { ClaudeAgentMessage } from '@agent-toolkit/messages';
 import { createClaudeAgentDatabaseTools } from '../../src/sdks/claude-agent-sdk';
 import type { ToolCall } from '../types';
 
@@ -54,42 +55,34 @@ export async function runAgent(
 
     // Collect messages and extract tool calls
     for await (const message of result) {
-      console.log('Message type:', message.type);
+      // Format message using ClaudeAgentMessage
+      const formatter = ClaudeAgentMessage(message);
 
-      // Check for error messages
-      if (message.type === 'error') {
-        console.error('Error message received:', message);
-        throw new Error(`Agent error: ${JSON.stringify(message)}`);
+      // Display formatted terminal output
+      const terminalOutput = formatter.raw();
+      if (terminalOutput) {
+        console.log(terminalOutput);
       }
 
-      // Extract assistant text responses
-      if (message.type === 'assistant') {
-        const textContent = message.message.content.find(
-          (c): c is { type: 'text'; text: string } => c.type === 'text'
-        );
-        if (textContent) {
-          finalResponse = textContent.text;
+      // Extract assistant responses and tool calls
+      if (formatter.isAI()) {
+        const content = formatter.getContent();
+        if (content) {
+          finalResponse = content;
         }
 
-        // Extract tool uses
-        const toolUses = message.message.content.filter(
-          (c): c is { type: 'tool_use'; id: string; name: string; input: any } =>
-            c.type === 'tool_use'
-        );
-
-        for (const toolUse of toolUses) {
-          toolCalls.push({
-            toolName: toolUse.name,
-            input: toolUse.input,
-            output: '', // Will be filled from result messages
-            timestamp: Date.now(),
-          });
+        // Extract tool calls
+        if (formatter.isToolCall()) {
+          const messageCalls = formatter.getToolCalls();
+          for (const toolCall of messageCalls) {
+            toolCalls.push({
+              toolName: toolCall.name,
+              input: toolCall.args,
+              output: '', // Will be filled from result messages
+              timestamp: Date.now(),
+            });
+          }
         }
-      }
-
-      // Extract result messages for final response
-      if (message.type === 'result' && message.subtype === 'success') {
-        finalResponse = message.result;
       }
     }
   } catch (error) {
@@ -102,6 +95,6 @@ export async function runAgent(
 
   return {
     response: finalResponse,
-    toolCalls,
+    toolCalls: [],
   };
 }

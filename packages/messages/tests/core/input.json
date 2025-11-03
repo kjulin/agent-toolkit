@@ -1,0 +1,52 @@
+[
+  {
+    "type": "ai",
+    "content": "Let me search for TypeScript files.",
+    "toolCalls": [
+      {
+        "name": "search_content",
+        "args": {
+          "pattern": "import.*fs",
+          "type": "ts"
+        },
+        "id": "call_123"
+      }
+    ]
+  },
+  {
+    "type": "tool",
+    "content": "Found matches in 3 file(s):\nsrc/file-reader.ts\nsrc/file-writer.ts\nlib/utils.ts",
+    "toolCallId": "call_123",
+    "toolName": "search_content"
+  },
+  {
+    "type": "ai",
+    "content": "I'll also check for multiple patterns.",
+    "toolCalls": [
+      {
+        "name": "find_files",
+        "args": {
+          "pattern": "**/*.ts"
+        },
+        "id": "call_456"
+      },
+      {
+        "name": "grep",
+        "args": {
+          "pattern": "export"
+        },
+        "id": "call_789"
+      }
+    ]
+  },
+  {
+    "type": "tool",
+    "content": "Error: Pattern not found in any files",
+    "toolCallId": "call_789",
+    "toolName": "grep"
+  },
+  {
+    "type": "ai",
+    "content": "Based on my search, I found 3 TypeScript files that import the fs module:\n- src/file-reader.ts\n- src/file-writer.ts\n- lib/utils.ts\n\nThese files handle file system operations."
+  }
+]

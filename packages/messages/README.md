@@ -4,10 +4,11 @@ Message formatting utilities for various agent frameworks. Provides consistent f
 
 ## Features
 
-- **LangChain Support**: Format LangChain messages for terminal display
+- **Framework Agnostic Core**: Generic message types and formatters
+- **SDK Adapters**: Easy integration with LangChain and other frameworks
 - **Type-Safe**: Full TypeScript support with detailed interfaces
-- **Framework Agnostic Core**: Easy to extend for other frameworks
 - **Terminal Optimized**: Clean, readable output for CLI applications
+- **Extensible**: Simple adapter pattern for adding new frameworks
 
 ## Installation
 
@@ -15,7 +16,57 @@ Message formatting utilities for various agent frameworks. Provides consistent f
 npm install @agent-toolkit/messages
 ```
 
+## Architecture
+
+This package uses a **core + adapters** pattern:
+
+- **Core** (`src/core/`): Framework-agnostic message types and formatters
+- **Adapters** (`src/langchain/`, etc.): Convert framework-specific messages to core types
+
+This design allows:
+1. Single source of truth for formatting logic
+2. Easy addition of new framework adapters
+3. Direct use of core types for custom implementations
+
 ## Quick Start
+
+### Using Framework-Agnostic Core
+
+```typescript
+import { formatMessage, type Message } from '@agent-toolkit/messages';
+
+const message: Message = {
+  type: 'ai',
+  content: 'Let me search for that file.',
+  toolCalls: [{
+    name: 'search_content',
+    args: { pattern: 'import.*fs', type: 'ts' },
+    id: 'call_123'
+  }]
+};
+
+const formatter = formatMessage(message);
+
+// Terminal-friendly output
+console.log(formatter.terminal());
+// 🔧 search_content
+//    • pattern: import.*fs
+//    • type: ts
+
+// Raw JSON output (for debugging)
+console.log(formatter.raw());
+// {
+//   "type": "ai",
+//   "content": "Let me search for that file.",
+//   "toolCalls": [
+//     {
+//       "name": "search_content",
+//       "args": { "pattern": "import.*fs", "type": "ts" },
+//       "id": "call_123"
+//     }
+//   ]
+// }
+```
 
 ### LangChain Message Formatting
 
@@ -75,13 +126,28 @@ interface MessageFormatter {
   getContent(): string;
 
   // Formatting
-  terminal(): string;
+  terminal(): string;  // Terminal-friendly formatted output
+  raw(): string;       // Raw message as formatted JSON
 }
 ```
 
-### Types
+**Formatting Methods:**
+- `terminal()`: Returns human-readable formatted output optimized for CLI display
+- `raw()`: Returns the underlying generic `Message` object as formatted JSON (useful for debugging)
+
+### Core Types
 
 ```typescript
+type MessageType = 'ai' | 'human' | 'system' | 'tool';
+
+interface Message {
+  type: MessageType;
+  content: string;
+  toolCalls?: ToolCall[];
+  toolCallId?: string;
+  toolName?: string;
+}
+
 interface ToolCall {
   name: string;
   args: Record<string, unknown>;
@@ -90,6 +156,33 @@ interface ToolCall {
 
 interface ToolResponse {
   output: string;
+  toolCallId?: string;
+  toolName?: string;
+}
+```
+
+## Creating Adapters for Other Frameworks
+
+To add support for a new framework, create an adapter that converts framework-specific messages to the core `Message` type:
+
+```typescript
+import { formatMessage, type Message, type MessageFormatter } from '@agent-toolkit/messages';
+
+export function YourFrameworkMessage(message: YourFrameworkMessageType): MessageFormatter {
+  // Convert to generic Message format
+  const genericMessage: Message = {
+    type: convertType(message.type),
+    content: message.content,
+    toolCalls: message.tools?.map(t => ({
+      name: t.name,
+      args: t.arguments,
+      id: t.id
+    })),
+    // ... other fields
+  };
+
+  // Use core formatter
+  return formatMessage(genericMessage);
 }
 ```
 

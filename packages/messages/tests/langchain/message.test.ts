@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { AIMessage, ToolMessage } from '@langchain/core/messages';
-import { LangchainMessage } from './message';
+import { LangchainMessage } from '../../src/langchain/message';
 
 describe('LangchainMessage', () => {
   describe('type detection', () => {
@@ -230,6 +230,96 @@ describe('LangchainMessage', () => {
 
       expect(output).toBeTruthy();
       expect(output).toContain('💬');
+    });
+  });
+
+  describe('raw output', () => {
+    it('should output AI message as formatted JSON', () => {
+      const aiMsg = new AIMessage('Hello, I can help you with that.');
+      const msg = LangchainMessage(aiMsg);
+      const raw = msg.raw();
+
+      const parsed = JSON.parse(raw);
+      expect(parsed.type).toBe('ai');
+      expect(parsed.content).toBe('Hello, I can help you with that.');
+    });
+
+    it('should output AI message with tool calls as formatted JSON', () => {
+      const aiMsg = new AIMessage({
+        content: 'Let me search for that.',
+        tool_calls: [
+          {
+            name: 'search_content',
+            args: { pattern: 'import.*fs', type: 'ts' },
+            id: 'call_123',
+          },
+        ],
+      });
+      const msg = LangchainMessage(aiMsg);
+      const raw = msg.raw();
+
+      const parsed = JSON.parse(raw);
+      expect(parsed.type).toBe('ai');
+      expect(parsed.content).toBe('Let me search for that.');
+      expect(parsed.toolCalls).toHaveLength(1);
+      expect(parsed.toolCalls[0].name).toBe('search_content');
+      expect(parsed.toolCalls[0].args.pattern).toBe('import.*fs');
+    });
+
+    it('should output tool message as formatted JSON', () => {
+      const toolMsg = new ToolMessage({
+        content: 'Found 3 files',
+        tool_call_id: 'call_123',
+      });
+      const msg = LangchainMessage(toolMsg);
+      const raw = msg.raw();
+
+      const parsed = JSON.parse(raw);
+      expect(parsed.type).toBe('tool');
+      expect(parsed.content).toBe('Found 3 files');
+      expect(parsed.toolCallId).toBe('call_123');
+    });
+
+    it('should exclude original field from raw() output', () => {
+      const aiMsg = new AIMessage('Hello, I can help you with that.');
+      const msg = LangchainMessage(aiMsg);
+      const raw = msg.raw();
+
+      const parsed = JSON.parse(raw);
+      expect(parsed.type).toBe('ai');
+      expect(parsed.content).toBe('Hello, I can help you with that.');
+      // Should NOT have the original field
+      expect(parsed.original).toBeUndefined();
+    });
+  });
+
+  describe('original output', () => {
+    it('should return original LangChain message', () => {
+      const aiMsg = new AIMessage('Hello, I can help you with that.');
+      const msg = LangchainMessage(aiMsg);
+      const original = msg.original();
+
+      const parsed = JSON.parse(original);
+      // Should contain LangChain-specific structure
+      expect(parsed).toBeDefined();
+      expect(parsed).toBeTypeOf('object');
+      // LangChain messages have an 'id' field
+      expect(parsed.id).toBeDefined();
+    });
+
+    it('should return original tool message with all fields', () => {
+      const toolMsg = new ToolMessage({
+        content: 'Found 3 files',
+        tool_call_id: 'call_123',
+      });
+      const msg = LangchainMessage(toolMsg);
+      const original = msg.original();
+
+      const parsed = JSON.parse(original);
+      expect(parsed).toBeDefined();
+      expect(parsed).toBeTypeOf('object');
+      // Should have an id field (all LangChain messages do)
+      expect(parsed.id).toBeDefined();
     });
   });
 });

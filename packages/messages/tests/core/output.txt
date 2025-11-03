@@ -1,0 +1,26 @@
+🔧 search_content
+   • pattern: import.*fs
+   • type: ts
+
+✓ search_content
+   Found matches in 3 file(s):
+   src/file-reader.ts
+   src/file-writer.ts
+   lib/utils.ts
+
+🔧 find_files
+   • pattern: **/*.ts
+
+🔧 grep
+   • pattern: export
+
+❌ grep
+   Error: Pattern not found in any files
+
+💬 Agent
+   Based on my search, I found 3 TypeScript files that import the fs module:
+   - src/file-reader.ts
+   - src/file-writer.ts
+   - lib/utils.ts
+   
+   These files handle file system operations.
