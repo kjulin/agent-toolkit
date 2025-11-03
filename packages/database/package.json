@@ -1,0 +1,59 @@
+{
+  "name": "@agent-toolkit/database",
+  "version": "0.1.0",
+  "description": "PostgreSQL database tools for AI agents with schema exploration and PII masking",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./claude-agent-sdk": {
+      "types": "./dist/sdks/claude-agent-sdk/index.d.ts",
+      "default": "./dist/sdks/claude-agent-sdk/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.sdk.json",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "eval": "tsx evals/runner.ts"
+  },
+  "keywords": [
+    "ai-agents",
+    "database",
+    "postgresql",
+    "tools",
+    "pii",
+    "claude"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.30",
+    "zod": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/claude-agent-sdk": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.30",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.0",
+    "vitest": "^2.1.8",
+    "zod": "^3.25.76"
+  }
+}
