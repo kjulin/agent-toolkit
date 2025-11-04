@@ -24,15 +24,21 @@ export interface LogEntry {
 }
 
 /**
- * Options for reading logs
+ * Service configuration (provided once during setup)
  */
-export interface ReadLogsOptions {
+export interface ServiceConfig {
   /** Cloud Run service name */
   service: string;
   /** GCP project ID (optional, uses gcloud default if not provided) */
   project?: string;
   /** Region where the service is deployed (optional) */
   region?: string;
+}
+
+/**
+ * Filter options for reading logs (provided per call)
+ */
+export interface LogFilterOptions {
   /** Filter by severity level (e.g., ERROR, WARNING, INFO, DEBUG) */
   severity?: string;
   /** Start time for log entries (ISO 8601 or relative like "1h" for 1 hour ago) */
@@ -46,6 +52,11 @@ export interface ReadLogsOptions {
   /** Sort order: "asc" or "desc" (default: "desc") */
   order?: 'asc' | 'desc';
 }
+
+/**
+ * Combined options for reading logs (internal use)
+ */
+export interface ReadLogsOptions extends ServiceConfig, LogFilterOptions {}
 
 /**
  * Result from reading logs

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { readLogs } from '../src/core/read_logs';
+import { readLogs, createReadLogs } from '../src/core/read_logs';
 import { Logging } from '@google-cloud/logging';
 
 // Mock @google-cloud/logging
@@ -526,5 +526,147 @@ describe('readLogs', () => {
       expect(result.success).toBe(true);
       expect(result.data?.entries[0].message).toBe('Text message');
     });
+  });
+});
+
+describe('createReadLogs (curried pattern)', () => {
+  let mockGetEntries: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetEntries = (Logging as any).mock.results[0]?.value?.getEntries || vi.fn();
+    (Logging as any).mockImplementation(() => ({
+      getEntries: mockGetEntries,
+    }));
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should create a curried function with service config', async () => {
+    const mockLogs = [
+      {
+        metadata: {
+          timestamp: '2024-01-01T10:00:00.000Z',
+          severity: 'INFO',
+        },
+        data: {
+          textPayload: 'Test message',
+        },
+      },
+    ];
+
+    mockGetEntries.mockResolvedValue([mockLogs]);
+
+    const readMyServiceLogs = createReadLogs({
+      service: 'my-service',
+      project: 'my-project',
+      region: 'us-central1',
+    });
+
+    const result = await readMyServiceLogs({ severity: 'ERROR', limit: 50 });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.service).toBe('my-service');
+    expect(result.data?.project).toBe('my-project');
+    expect(Logging).toHaveBeenCalledWith({ projectId: 'my-project' });
+    expect(mockGetEntries).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filter: expect.stringContaining('resource.labels.location="us-central1"'),
+        pageSize: 50,
+      })
+    );
+  });
+
+  it('should work with minimal config', async () => {
+    mockGetEntries.mockResolvedValue([[]]);
+
+    const readServiceLogs = createReadLogs({
+      service: 'test-service',
+    });
+
+    const result = await readServiceLogs();
+
+    expect(result.success).toBe(true);
+    expect(result.data?.service).toBe('test-service');
+  });
+
+  it('should allow multiple calls with different filters', async () => {
+    const mockLogs = [
+      {
+        metadata: {
+          timestamp: '2024-01-01T10:00:00.000Z',
+          severity: 'ERROR',
+        },
+        data: {
+          textPayload: 'Error message',
+        },
+      },
+    ];
+
+    mockGetEntries.mockResolvedValue([mockLogs]);
+
+    const readServiceLogs = createReadLogs({
+      service: 'test-service',
+    });
+
+    // First call with ERROR severity
+    const result1 = await readServiceLogs({ severity: 'ERROR' });
+    expect(result1.success).toBe(true);
+
+    // Second call with different filters
+    const result2 = await readServiceLogs({
+      severity: 'WARNING',
+      limit: 10,
+      order: 'asc'
+    });
+    expect(result2.success).toBe(true);
+
+    // Check that second call used correct options
+    expect(mockGetEntries).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        filter: expect.stringContaining('severity>=WARNING'),
+        pageSize: 10,
+        orderBy: 'timestamp asc',
+      })
+    );
+  });
+
+  it('should handle errors properly in curried function', async () => {
+    const error: any = new Error('UNAUTHENTICATED');
+    error.code = 16;
+    mockGetEntries.mockRejectedValue(error);
+
+    const readServiceLogs = createReadLogs({
+      service: 'test-service',
+    });
+
+    const result = await readServiceLogs();
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Not authenticated with Google Cloud');
+  });
+
+  it('should merge filter options with config', async () => {
+    mockGetEntries.mockResolvedValue([[]]);
+
+    const readServiceLogs = createReadLogs({
+      service: 'my-service',
+      project: 'my-project',
+    });
+
+    await readServiceLogs({
+      severity: 'ERROR',
+      startTime: '2024-01-01T00:00:00Z',
+      limit: 25,
+    });
+
+    expect(mockGetEntries).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filter: expect.stringMatching(/service_name="my-service".*severity>=ERROR.*timestamp>="2024-01-01T00:00:00Z"/),
+        pageSize: 25,
+      })
+    );
   });
 });

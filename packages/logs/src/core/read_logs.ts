@@ -1,5 +1,5 @@
 import { Logging } from '@google-cloud/logging';
-import type { OperationResult, ReadLogsOptions, ReadLogsResult, LogEntry } from '../types';
+import type { OperationResult, ReadLogsOptions, ReadLogsResult, LogEntry, ServiceConfig, LogFilterOptions } from '../types';
 
 /**
  * Builds a Cloud Logging filter for Cloud Run service
@@ -75,11 +75,11 @@ function convertLogEntry(entry: any): LogEntry {
 }
 
 /**
- * Reads logs from a Cloud Run service using Google Cloud Logging SDK
- * @param options Options for reading logs
+ * Internal function to read logs with combined options
+ * @param options Combined options for reading logs
  * @returns Operation result with log entries
  */
-export async function readLogs(
+async function readLogsInternal(
   options: ReadLogsOptions
 ): Promise<OperationResult<ReadLogsResult>> {
   try {
@@ -167,4 +167,44 @@ export async function readLogs(
       error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
+}
+
+/**
+ * Creates a curried readLogs function configured for a specific service
+ * @param config Service configuration
+ * @returns Curried function that accepts filter options
+ *
+ * @example
+ * ```typescript
+ * const readMyServiceLogs = createReadLogs({
+ *   service: 'my-service',
+ *   project: 'my-project',
+ *   region: 'us-central1'
+ * });
+ *
+ * // Later, just pass filter options
+ * const result = await readMyServiceLogs({ severity: 'ERROR', limit: 50 });
+ * ```
+ */
+export function createReadLogs(config: ServiceConfig) {
+  return async function(filterOptions: LogFilterOptions = {}): Promise<OperationResult<ReadLogsResult>> {
+    return readLogsInternal({
+      ...config,
+      ...filterOptions,
+    });
+  };
+}
+
+/**
+ * Reads logs from a Cloud Run service using Google Cloud Logging SDK
+ * Backward compatible function that accepts all options at once
+ * @param options Options for reading logs
+ * @returns Operation result with log entries
+ *
+ * @deprecated Use createReadLogs for curried pattern
+ */
+export async function readLogs(
+  options: ReadLogsOptions
+): Promise<OperationResult<ReadLogsResult>> {
+  return readLogsInternal(options);
 }
