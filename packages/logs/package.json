@@ -14,11 +14,16 @@
       "default": "./dist/sdks/claude-agent-sdk/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "logs",
@@ -29,8 +34,20 @@
     "agent",
     "toolkit"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kjulin/agent-toolkit.git",
+    "directory": "packages/logs"
+  },
+  "bugs": {
+    "url": "https://github.com/kjulin/agent-toolkit/issues"
+  },
+  "homepage": "https://github.com/kjulin/agent-toolkit/tree/main/packages/logs#readme",
   "author": "",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@google-cloud/logging": "^11.0.0"
   },

@@ -9,7 +9,8 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
-    "clean": "npm run clean --workspaces && rm -rf node_modules"
+    "clean": "npm run clean --workspaces && rm -rf node_modules",
+    "publish:all": "npm run build && npm run test && npm publish --workspaces --access public"
   },
   "keywords": [
     "agent",

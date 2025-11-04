@@ -4,11 +4,16 @@
   "description": "Message formatting utilities for various agent frameworks",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "messages",
@@ -17,8 +22,20 @@
     "formatting",
     "toolkit"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kjulin/agent-toolkit.git",
+    "directory": "packages/messages"
+  },
+  "bugs": {
+    "url": "https://github.com/kjulin/agent-toolkit/issues"
+  },
+  "homepage": "https://github.com/kjulin/agent-toolkit/tree/main/packages/messages#readme",
   "author": "",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.0",
     "@langchain/core": "^0.3.0"
