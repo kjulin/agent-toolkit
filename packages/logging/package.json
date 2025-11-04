@@ -1,0 +1,30 @@
+{
+  "name": "@agent-toolkit/logging",
+  "version": "0.1.0",
+  "description": "Logging toolkit for reading Cloud Run logs using gcloud SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "logging",
+    "cloud-run",
+    "gcloud",
+    "agent",
+    "toolkit"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/logging": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.24",
+    "typescript": "^5.9.0",
+    "vitest": "^2.0.0"
+  }
+}
