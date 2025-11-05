@@ -88,11 +88,6 @@ export function createClaudeAgentDatabaseTools(
             text: JSON.stringify(
               {
                 rows: result.data!.rows,
-                rowCount: result.data!.rowCount,
-                fields: result.data!.fields.map((f) => ({
-                  name: f.name,
-                  dataTypeID: f.dataTypeID,
-                })),
                 ...(result.data!.piiFields && {
                   piiFields: result.data!.piiFields,
                 }),
