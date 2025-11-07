@@ -79,13 +79,13 @@ export function createClaudeAgentLogsTools(
         .string()
         .optional()
         .describe(
-          'Start time for log entries. ISO 8601 format (e.g., "2024-01-01T00:00:00Z") or relative time (e.g., "1h" for 1 hour ago, "30m" for 30 minutes ago)'
+          'Start time for log entries (inclusive). MUST be in RFC 3339 / ISO 8601 format with timezone. Examples: "2024-11-07T10:00:00Z" (UTC), "2024-11-07T10:00:00.000Z" (with milliseconds), "2024-11-07T10:00:00+01:00" (with offset).'
         ),
       endTime: z
         .string()
         .optional()
         .describe(
-          'End time for log entries. ISO 8601 format or relative time'
+          'End time for log entries (inclusive). MUST be in RFC 3339 / ISO 8601 format with timezone. Examples: "2024-11-07T12:00:00Z" (UTC), "2024-11-07T12:00:00.000Z" (with milliseconds), "2024-11-07T12:00:00+01:00" (with offset).'
         ),
       limit: z
         .number()
