@@ -24,6 +24,19 @@ export interface LogEntry {
 }
 
 /**
+ * Authentication configuration for Google Cloud
+ */
+export interface AuthConfig {
+  /** Path to a service account key file (.json) */
+  keyFilename?: string;
+  /** Service account credentials object */
+  credentials?: {
+    client_email: string;
+    private_key: string;
+  };
+}
+
+/**
  * Service configuration (provided once during setup)
  */
 export interface ServiceConfig {
@@ -33,6 +46,8 @@ export interface ServiceConfig {
   project?: string;
   /** Region where the service is deployed (optional) */
   region?: string;
+  /** Authentication configuration (optional, uses default credentials if not provided) */
+  auth?: AuthConfig;
 }
 
 /**

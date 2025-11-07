@@ -91,9 +91,11 @@ async function readLogsInternal(
       };
     }
 
-    // Create Logging client
+    // Create Logging client with optional authentication
     const logging = new Logging({
       projectId: options.project,
+      ...(options.auth?.keyFilename && { keyFilename: options.auth.keyFilename }),
+      ...(options.auth?.credentials && { credentials: options.auth.credentials }),
     });
 
     // Build filter
@@ -176,10 +178,34 @@ async function readLogsInternal(
  *
  * @example
  * ```typescript
+ * // Using default credentials (gcloud auth application-default login)
  * const readMyServiceLogs = createReadLogs({
  *   service: 'my-service',
  *   project: 'my-project',
  *   region: 'us-central1'
+ * });
+ *
+ * // Using a service account key file
+ * const readMyServiceLogs = createReadLogs({
+ *   service: 'my-service',
+ *   project: 'my-project',
+ *   region: 'us-central1',
+ *   auth: {
+ *     keyFilename: '/path/to/service-account-key.json'
+ *   }
+ * });
+ *
+ * // Using credentials object
+ * const readMyServiceLogs = createReadLogs({
+ *   service: 'my-service',
+ *   project: 'my-project',
+ *   region: 'us-central1',
+ *   auth: {
+ *     credentials: {
+ *       client_email: 'service-account@project.iam.gserviceaccount.com',
+ *       private_key: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+ *     }
+ *   }
  * });
  *
  * // Later, just pass filter options
