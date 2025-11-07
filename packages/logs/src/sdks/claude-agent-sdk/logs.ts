@@ -20,10 +20,34 @@ export interface ClaudeAgentLogsToolsOptions extends ServiceConfig {}
  * import { query } from '@anthropic-ai/claude-agent-sdk';
  * import { createClaudeAgentLogsTools } from '@agent-toolkit/logs/claude-agent-sdk';
  *
+ * // Using default credentials (gcloud auth application-default login)
  * const logsServer = createClaudeAgentLogsTools({
  *   service: 'my-service',
  *   project: 'my-project',
  *   region: 'us-central1'
+ * });
+ *
+ * // Using a service account key file
+ * const logsServerWithAuth = createClaudeAgentLogsTools({
+ *   service: 'my-service',
+ *   project: 'my-project',
+ *   region: 'us-central1',
+ *   auth: {
+ *     keyFilename: '/path/to/service-account-key.json'
+ *   }
+ * });
+ *
+ * // Using credentials object
+ * const logsServerWithCreds = createClaudeAgentLogsTools({
+ *   service: 'my-service',
+ *   project: 'my-project',
+ *   region: 'us-central1',
+ *   auth: {
+ *     credentials: {
+ *       client_email: 'service-account@project.iam.gserviceaccount.com',
+ *       private_key: process.env.PRIVATE_KEY!
+ *     }
+ *   }
  * });
  *
  * const result = await query({
